@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class PausableSystem : MonoBehaviour
 {
-    private enum State
+    protected enum SystemState
     {
         ReadyToPause,
         Pause,
@@ -15,7 +15,7 @@ public abstract class PausableSystem : MonoBehaviour
     public float cooldownTime;
 
     private float _timerValue;
-    private State _state;
+    protected SystemState State { get; private set; }
 
     public event Action<float> OnValueChanged;
     public event Action OnPause;
@@ -23,9 +23,9 @@ public abstract class PausableSystem : MonoBehaviour
 
     public void Pause()
     {
-        if (_state == State.ReadyToPause)
+        if (State == SystemState.ReadyToPause)
         {
-            _state = State.Pause;
+            State = SystemState.Pause;
             _timerValue = pauseTime;
             OnPause?.Invoke();
         }
@@ -34,17 +34,17 @@ public abstract class PausableSystem : MonoBehaviour
     private void Awake()
     {
         _timerValue = 1f;
-        _state = State.ReadyToPause;
+        State = SystemState.ReadyToPause;
     }
 
     private void Update()
     {
-        switch (_state)
+        switch (State)
         {
-            case State.Pause:
+            case SystemState.Pause:
                 UpdateOnPause(Time.deltaTime);
                 break;
-            case State.Cooldown:
+            case SystemState.Cooldown:
                 UpdateOnCooldown(Time.deltaTime);
                 break;
         }
@@ -56,7 +56,7 @@ public abstract class PausableSystem : MonoBehaviour
         OnValueChanged?.Invoke(Mathf.Clamp01(1 - _timerValue / cooldownTime));
 
         if (_timerValue <= 0)
-            _state = State.ReadyToPause;
+            State = SystemState.ReadyToPause;
     }
 
     private void UpdateOnPause(float deltaTime)
@@ -66,7 +66,7 @@ public abstract class PausableSystem : MonoBehaviour
 
         if (_timerValue <= 0)
         {
-            _state = State.Cooldown;
+            State = SystemState.Cooldown;
             _timerValue = cooldownTime;
             OnUnpause?.Invoke();
         }

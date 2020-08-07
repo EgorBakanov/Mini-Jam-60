@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
@@ -8,13 +9,13 @@ public class Player : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (!Input.GetMouseButtonDown(0)) return;
+        if(EventSystem.current.IsPointerOverGameObject()) return;
+            
+        var ray = camera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity))
         {
-            var ray = camera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out var hit, 10000000f))
-            {
-                navMeshAgent.SetDestination(hit.point);
-            }
+            navMeshAgent.SetDestination(hit.point);
         }
     }
 }
