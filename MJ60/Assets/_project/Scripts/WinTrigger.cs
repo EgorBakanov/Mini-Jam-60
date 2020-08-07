@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class WinZone : MonoBehaviour
+public class WinTrigger : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
