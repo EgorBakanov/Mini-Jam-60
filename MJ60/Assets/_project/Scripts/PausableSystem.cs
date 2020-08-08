@@ -14,7 +14,7 @@ public abstract class PausableSystem : MonoBehaviour
     public float pauseTime;
     public float cooldownTime;
 
-    private float _timerValue;
+    private Timer _timer;
     protected SystemState State { get; private set; }
 
     public event Action<float> OnValueChanged;
@@ -26,48 +26,47 @@ public abstract class PausableSystem : MonoBehaviour
         if (State == SystemState.ReadyToPause)
         {
             State = SystemState.Pause;
-            _timerValue = pauseTime;
+            _timer = pauseTime;
             OnPause?.Invoke();
         }
     }
 
     private void Awake()
     {
-        _timerValue = 1f;
+        _timer = 0;
         State = SystemState.ReadyToPause;
     }
 
     private void Update()
     {
+        _timer.Tick(Time.deltaTime);
         switch (State)
         {
             case SystemState.Pause:
-                UpdateOnPause(Time.deltaTime);
+                UpdateOnPause();
                 break;
             case SystemState.Cooldown:
-                UpdateOnCooldown(Time.deltaTime);
+                UpdateOnCooldown();
                 break;
         }
     }
 
-    private void UpdateOnCooldown(float deltaTime)
+    private void UpdateOnCooldown()
     {
-        _timerValue -= deltaTime;
-        OnValueChanged?.Invoke(Mathf.Clamp01(1 - _timerValue / cooldownTime));
+        OnValueChanged?.Invoke(Mathf.Clamp01(1 - _timer / cooldownTime));
 
-        if (_timerValue <= 0)
+        if (_timer.IsDone)
             State = SystemState.ReadyToPause;
     }
 
-    private void UpdateOnPause(float deltaTime)
+    private void UpdateOnPause()
     {
-        _timerValue -= deltaTime;
-        OnValueChanged?.Invoke(Mathf.Clamp01(_timerValue / pauseTime));
+        OnValueChanged?.Invoke(Mathf.Clamp01(_timer / pauseTime));
 
-        if (_timerValue <= 0)
+        if (_timer.IsDone)
         {
             State = SystemState.Cooldown;
-            _timerValue = cooldownTime;
+            _timer = cooldownTime;
             OnUnpause?.Invoke();
         }
     }
