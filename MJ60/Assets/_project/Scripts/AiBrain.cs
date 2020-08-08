@@ -1,5 +1,4 @@
-﻿using System;
-using DG.Tweening;
+﻿using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -21,6 +20,8 @@ public class AiBrain : MonoBehaviour
         AlarmWait,
     }
 
+    public float viewAngel;
+    public float viewDistance;
     public NavMeshAgent navMeshAgent;
     public AiState startState = AiState.Wait;
     public float waitTime;
@@ -36,7 +37,7 @@ public class AiBrain : MonoBehaviour
 
     private void Start()
     {
-        if (waypoints == null)
+        if (waypoints == null || waypoints.Length == 0)
             waypoints = new[] {transform};
         if (alarmWaypoint == null)
             alarmWaypoint = transform;
@@ -48,7 +49,8 @@ public class AiBrain : MonoBehaviour
 
     private void Update()
     {
-        _timer.Tick(Time.deltaTime);
+        CheckPlayer();
+        Debug.Log(_state);
         switch (_state)
         {
             case AiState.Wait:
@@ -74,44 +76,62 @@ public class AiBrain : MonoBehaviour
 
     private void UpdateOnChaseWait()
     {
-        if (_timer.IsDone)
-        {
-            navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
-        }
+        if (CheckForAlarm()) return;
+        if (!_timer.Tick(Time.deltaTime)) return;
+
+        navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
+        _state = AiState.FollowPath;
     }
 
     private void UpdateOnAlarmWait()
     {
-        throw new NotImplementedException();
+        if (GameManager.Instance.pausableSystemManager.alarmSystem.IsAlarmed) return;
+
+        _state = AiState.FollowPath;
+        navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
     }
 
     private void UpdateOnAlarm()
     {
-        throw new NotImplementedException();
+        if (!GameManager.Instance.pausableSystemManager.alarmSystem.IsAlarmed)
+        {
+            _state = AiState.FollowPath;
+            navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
+            return;
+        }
+
+        if (navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete) return;
+
+        _state = AiState.AlarmWait;
+        navMeshAgent.transform.DORotate(alarmWaypoint.forward, rotateOnWaitTime);
     }
 
     private void UpdateOnChase()
     {
-        throw new NotImplementedException();
+        if (navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete) return;
+
+        _state = AiState.ChaseWait;
+        _timer = waitTime;
     }
 
     private void UpdateOnFollowPath()
     {
-        if (navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete)
-        {
-            _timer = waitTime;
-            _state = AiState.Wait;
-            navMeshAgent.transform.DORotate(waypoints[_currentWaypoint].forward, rotateOnWaitTime);
-        }
+        if (CheckForAlarm()) return;
+        if (navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete) return;
+        
+        _state = AiState.Wait;
+        _timer = waitTime;
+        navMeshAgent.transform.DORotate(waypoints[_currentWaypoint].forward, rotateOnWaitTime);
     }
 
     private void UpdateOnWait()
     {
-        if (_timer.IsDone)
-        {
-            NextWaypoint();
-            navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
-        }
+        if (CheckForAlarm()) return;
+        if (!_timer.Tick(Time.deltaTime)) return;
+        
+        _state = AiState.FollowPath;
+        NextWaypoint();
+        navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
     }
 
     private bool CheckForAlarm()
@@ -119,8 +139,28 @@ public class AiBrain : MonoBehaviour
         if (!GameManager.Instance.pausableSystemManager.alarmSystem.IsAlarmed)
             return false;
 
-
+        navMeshAgent.SetDestination(alarmWaypoint.position);
+        _state = AiState.Alarm;
         return true;
+    }
+
+    private void CheckPlayer()
+    {
+        var player = GameManager.Instance.player;
+        var direction = (player.position - transform.position).normalized;
+        if (Mathf.Abs(Vector3.Angle(direction, transform.forward)) > viewAngel)
+            return;
+
+        if (!Physics.Raycast(transform.position, direction, out var hitInfo, viewDistance))
+            return;
+
+        if ((hitInfo.transform.gameObject.layer & GameManager.Instance.playerLayerMask) !=
+            GameManager.Instance.playerLayerMask)
+            return;
+
+        _state = AiState.Chase;
+        navMeshAgent.SetDestination(player.position);
+        GameManager.Instance.pausableSystemManager.alarmSystem.Alarm();
     }
 
     private void NextWaypoint()

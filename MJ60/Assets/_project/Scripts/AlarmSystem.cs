@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class AlarmSystem : PausableSystem
 {
-    public enum AlarmState
+    private enum AlarmState
     {
         None,
         Raise,
