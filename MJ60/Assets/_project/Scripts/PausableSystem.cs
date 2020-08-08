@@ -31,13 +31,13 @@ public abstract class PausableSystem : MonoBehaviour
         }
     }
 
-    private void Awake()
+    protected virtual void Awake()
     {
         _timer = 0;
         State = SystemState.ReadyToPause;
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         _timer.Tick(Time.deltaTime);
         switch (State)

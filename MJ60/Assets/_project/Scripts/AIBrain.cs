@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -17,15 +16,18 @@ public class AiBrain : MonoBehaviour
         Wait,
         FollowPath,
         Chase,
+        ChaseWait,
         Alarm,
         AlarmWait,
     }
-    
+
     public NavMeshAgent navMeshAgent;
     public AiState startState = AiState.Wait;
     public float waitTime;
+    public float rotateOnWaitTime;
     public PathStyle pathStyle = PathStyle.PingPong;
     public Transform[] waypoints;
+    public Transform alarmWaypoint;
 
     private int _currentWaypoint;
     private AiState _state;
@@ -36,11 +38,12 @@ public class AiBrain : MonoBehaviour
     {
         if (waypoints == null)
             waypoints = new[] {transform};
+        if (alarmWaypoint == null)
+            alarmWaypoint = transform;
 
         _currentWaypoint = 0;
         _state = startState;
         _timer = 0;
-
     }
 
     private void Update()
@@ -63,6 +66,17 @@ public class AiBrain : MonoBehaviour
             case AiState.AlarmWait:
                 UpdateOnAlarmWait();
                 break;
+            case AiState.ChaseWait:
+                UpdateOnChaseWait();
+                break;
+        }
+    }
+
+    private void UpdateOnChaseWait()
+    {
+        if (_timer.IsDone)
+        {
+            navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
         }
     }
 
@@ -83,16 +97,40 @@ public class AiBrain : MonoBehaviour
 
     private void UpdateOnFollowPath()
     {
-        throw new NotImplementedException();
+        if (navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete)
+        {
+            _timer = waitTime;
+            _state = AiState.Wait;
+            navMeshAgent.transform.DORotate(waypoints[_currentWaypoint].forward, rotateOnWaitTime);
+        }
     }
 
     private void UpdateOnWait()
     {
-        throw new NotImplementedException();
+        if (_timer.IsDone)
+        {
+            NextWaypoint();
+            navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
+        }
+    }
+
+    private bool CheckForAlarm()
+    {
+        if (!GameManager.Instance.pausableSystemManager.alarmSystem.IsAlarmed)
+            return false;
+
+
+        return true;
     }
 
     private void NextWaypoint()
     {
+        if (waypoints.Length == 1)
+        {
+            _currentWaypoint = 0;
+            return;
+        }
+
         switch (pathStyle)
         {
             case PathStyle.PingPong:
