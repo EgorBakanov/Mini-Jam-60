@@ -5,5 +5,5 @@ public class PausableSystemManager : MonoBehaviour
 {
     public TestSystem testSystem;
 
-    public HashSet<PausableSystem> availableSystems;
+    public HashSet<PausableSystem> availableSystems = new HashSet<PausableSystem>();
 }
