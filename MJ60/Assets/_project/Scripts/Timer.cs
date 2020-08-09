@@ -1,6 +1,8 @@
-﻿using System.Globalization;
+﻿using System.Collections;
+using System.Globalization;
 using UnityEngine;
 
+[System.Serializable]
 public class Timer
 {
     public float Value
@@ -31,8 +33,21 @@ public class Timer
 
     public static implicit operator Timer(float time) => new Timer(time);
     public static implicit operator float(Timer timer) => timer._value;
+    public static implicit operator CustomYieldInstruction(Timer timer) => new YieldTimer(timer);
     public override string ToString()
     {
         return _value.ToString(CultureInfo.InvariantCulture);
+    }
+    
+    private class YieldTimer : CustomYieldInstruction
+    {
+        private readonly Timer _timer;
+
+        public override bool keepWaiting => !_timer.Tick(Time.deltaTime);
+
+        public YieldTimer(Timer timer)
+        {
+            _timer = timer;
+        }
     }
 }

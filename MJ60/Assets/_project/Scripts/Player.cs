@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 
@@ -9,17 +8,28 @@ public class Player : MonoBehaviour
     public new Camera camera;
     public LayerMask floorLayer;
 
-    private Vector3 direction;
+    private bool _shouldMove;
 
     private void Start()
     {
         GameManager.Instance.player = transform;
+        _shouldMove = false;
     }
 
-    void Update()
+    private void Update() => _shouldMove = Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject();
+
+    private void FixedUpdate()
     {
-        if (!Input.GetMouseButton(0)) return;
-        if (EventSystem.current.IsPointerOverGameObject()) return;
+        if(!_shouldMove)
+            return;
+        
+        var ray = camera.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out var hit, floorLayer))
+            return;
+
+        var direction = hit.point - transform.position;
+        direction.y = 0;
+        direction.Normalize();
         
         var newDir = Vector3.RotateTowards(transform.forward, direction,
             navMeshAgent.angularSpeed * Mathf.Deg2Rad * Time.deltaTime, 0f);
@@ -27,19 +37,5 @@ public class Player : MonoBehaviour
         navMeshAgent.Move(Time.deltaTime * navMeshAgent.speed * direction);
 
         // navMeshAgent.SetDestination(hit.point);
-    }
-
-    private void FixedUpdate()
-    {
-        var ray = camera.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out var hit, floorLayer))
-        {
-            direction=Vector3.zero;
-            return;
-        }
-
-        direction = hit.point - transform.position;
-        direction.y = 0;
-        direction.Normalize();
     }
 }

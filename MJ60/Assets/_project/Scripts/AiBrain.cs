@@ -31,6 +31,11 @@ public class AiBrain : MonoBehaviour
     public PathStyle pathStyle = PathStyle.PingPong;
     public Transform[] waypoints;
     public Transform alarmWaypoint;
+    public Light viewLight;
+    public float viewLightChangeTime;
+    public Color normalState;
+    public Color chaseState;
+    public Color alarmState;
 
     private int _currentWaypoint;
     private AiState _state;
@@ -47,6 +52,7 @@ public class AiBrain : MonoBehaviour
 
         _currentWaypoint = 0;
         _state = AiState.FollowPath;
+        viewLight.DOColor(normalState, viewLightChangeTime);
         navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
         _timer = 0;
         _canSee = false;
@@ -83,6 +89,7 @@ public class AiBrain : MonoBehaviour
         if (!_timer.Tick(Time.deltaTime)) return;
 
         navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
+        viewLight.DOColor(normalState, viewLightChangeTime);
         _state = AiState.FollowPath;
     }
 
@@ -91,6 +98,7 @@ public class AiBrain : MonoBehaviour
         if (GameManager.Instance.pausableSystemManager.alarmSystem.IsAlarmed) return;
 
         _state = AiState.FollowPath;
+        viewLight.DOColor(normalState, viewLightChangeTime);
         navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
     }
 
@@ -99,6 +107,7 @@ public class AiBrain : MonoBehaviour
         if (!GameManager.Instance.pausableSystemManager.alarmSystem.IsAlarmed)
         {
             _state = AiState.FollowPath;
+            viewLight.DOColor(normalState, viewLightChangeTime);
             navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
             return;
         }
@@ -145,6 +154,7 @@ public class AiBrain : MonoBehaviour
             return false;
 
         navMeshAgent.SetDestination(alarmWaypoint.position);
+        viewLight.DOColor(alarmState, viewLightChangeTime);
         _state = AiState.Alarm;
         return true;
     }
@@ -160,6 +170,7 @@ public class AiBrain : MonoBehaviour
             return;
 
         _state = AiState.Chase;
+        viewLight.DOColor(chaseState, viewLightChangeTime);
         navMeshAgent.SetDestination(player.position);
         GameManager.Instance.pausableSystemManager.alarmSystem.Alarm();
     }

@@ -14,7 +14,7 @@ public abstract class PausableSystem : MonoBehaviour
     public float pauseTime;
     public float cooldownTime;
 
-    private Timer _timer;
+    private Timer _pauseTimer;
     protected SystemState State { get; private set; }
 
     public event Action<float> OnValueChanged;
@@ -26,20 +26,20 @@ public abstract class PausableSystem : MonoBehaviour
         if (State == SystemState.ReadyToPause)
         {
             State = SystemState.Pause;
-            _timer = pauseTime;
+            _pauseTimer = pauseTime;
             OnPause?.Invoke();
         }
     }
 
     protected virtual void Awake()
     {
-        _timer = 0;
+        _pauseTimer = 0;
         State = SystemState.ReadyToPause;
     }
 
     protected virtual void Update()
     {
-        _timer.Tick(Time.deltaTime);
+        _pauseTimer.Tick(Time.deltaTime);
         switch (State)
         {
             case SystemState.Pause:
@@ -53,20 +53,20 @@ public abstract class PausableSystem : MonoBehaviour
 
     private void UpdateOnCooldown()
     {
-        OnValueChanged?.Invoke(Mathf.Clamp01(1 - _timer / cooldownTime));
+        OnValueChanged?.Invoke(Mathf.Clamp01(1 - _pauseTimer / cooldownTime));
 
-        if (_timer.IsDone)
+        if (_pauseTimer.IsDone)
             State = SystemState.ReadyToPause;
     }
 
     private void UpdateOnPause()
     {
-        OnValueChanged?.Invoke(Mathf.Clamp01(_timer / pauseTime));
+        OnValueChanged?.Invoke(Mathf.Clamp01(_pauseTimer / pauseTime));
 
-        if (_timer.IsDone)
+        if (_pauseTimer.IsDone)
         {
             State = SystemState.Cooldown;
-            _timer = cooldownTime;
+            _pauseTimer = cooldownTime;
             OnUnpause?.Invoke();
         }
     }

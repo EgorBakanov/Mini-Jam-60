@@ -24,7 +24,7 @@ public class AlarmSystem : PausableSystem
 
         if (_state == AlarmState.Alarm)
         {
-            _timer = alarmTime;
+            _alarmTimer = alarmTime;
             return;
         }
         
@@ -37,30 +37,28 @@ public class AlarmSystem : PausableSystem
             return;
         
         _state = AlarmState.Alarm;
-        _timer = alarmTime;
+        _alarmTimer = alarmTime;
     }
 
     public event Action<float> OnAlarmValueChanged;
 
     private AlarmState _state;
     private float _value;
-    private Timer _timer;
+    private Timer _alarmTimer;
     private float _dt;
-    private float _t;
 
     protected override void Awake()
     {
         base.Awake();
         _state = AlarmState.None;
         _value = 0;
-        _timer = 0;
+        _alarmTimer = 0;
     }
 
     protected override void Update()
     {
         base.Update();
         _dt = Time.deltaTime;
-        _t = _timer;
     }
 
     private void LateUpdate()
@@ -84,7 +82,7 @@ public class AlarmSystem : PausableSystem
 
     private void UpdateOnAlarm()
     {
-        if (!_timer.Tick(_dt))
+        if (!_alarmTimer.Tick(_dt))
             return;
         
         _state = AlarmState.Restore;
@@ -108,7 +106,7 @@ public class AlarmSystem : PausableSystem
         if (_value >= 1f)
         {
             _state = AlarmState.Alarm;
-            _timer = alarmTime;
+            _alarmTimer = alarmTime;
             _value = 1f;
         }
         else _state = AlarmState.Restore;
