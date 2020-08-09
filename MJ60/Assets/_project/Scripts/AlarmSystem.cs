@@ -19,8 +19,14 @@ public class AlarmSystem : PausableSystem
     
     public void Alarm()
     {
-        if(State == SystemState.Pause || _state == AlarmState.Alarm)
+        if(State == SystemState.Pause)
             return;
+
+        if (_state == AlarmState.Alarm)
+        {
+            _timer = alarmTime;
+            return;
+        }
         
         _state = AlarmState.Raise;
     }
@@ -31,6 +37,7 @@ public class AlarmSystem : PausableSystem
             return;
         
         _state = AlarmState.Alarm;
+        _timer = alarmTime;
     }
 
     public event Action<float> OnAlarmValueChanged;
@@ -38,6 +45,8 @@ public class AlarmSystem : PausableSystem
     private AlarmState _state;
     private float _value;
     private Timer _timer;
+    private float _dt;
+    private float _t;
 
     protected override void Awake()
     {
@@ -45,6 +54,13 @@ public class AlarmSystem : PausableSystem
         _state = AlarmState.None;
         _value = 0;
         _timer = 0;
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        _dt = Time.deltaTime;
+        _t = _timer;
     }
 
     private void LateUpdate()
@@ -68,15 +84,15 @@ public class AlarmSystem : PausableSystem
 
     private void UpdateOnAlarm()
     {
-        if (!_timer.Tick(Time.deltaTime))
+        if (!_timer.Tick(_dt))
             return;
-
+        
         _state = AlarmState.Restore;
     }
 
     private void UpdateOnRestore()
     {
-        _value -= Time.deltaTime / timeToFullRestore;
+        _value -= _dt / timeToFullRestore;
         if (_value <= 0f)
         {
             _state = AlarmState.None;
@@ -88,7 +104,7 @@ public class AlarmSystem : PausableSystem
 
     private void UpdateOnRaise()
     {
-        _value += Time.deltaTime / timeToAlarm;
+        _value += _dt / timeToAlarm;
         if (_value >= 1f)
         {
             _state = AlarmState.Alarm;

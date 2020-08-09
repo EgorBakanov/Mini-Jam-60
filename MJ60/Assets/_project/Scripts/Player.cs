@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     public new Camera camera;
     public LayerMask floorLayer;
 
+    private Vector3 direction;
+
     private void Start()
     {
         GameManager.Instance.player = transform;
@@ -18,14 +20,6 @@ public class Player : MonoBehaviour
     {
         if (!Input.GetMouseButton(0)) return;
         if (EventSystem.current.IsPointerOverGameObject()) return;
-
-        var ray = camera.ScreenPointToRay(Input.mousePosition);
-        if(Input.GetKey(KeyCode.Space)) Debug.DrawRay(ray.origin,ray.direction * 100,Color.green);
-        if (!Physics.Raycast(ray, out var hit, floorLayer)) return;
-
-        var direction = hit.point - transform.position;
-        direction.y = 0;
-        direction.Normalize();
         
         var newDir = Vector3.RotateTowards(transform.forward, direction,
             navMeshAgent.angularSpeed * Mathf.Deg2Rad * Time.deltaTime, 0f);
@@ -33,5 +27,19 @@ public class Player : MonoBehaviour
         navMeshAgent.Move(Time.deltaTime * navMeshAgent.speed * direction);
 
         // navMeshAgent.SetDestination(hit.point);
+    }
+
+    private void FixedUpdate()
+    {
+        var ray = camera.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out var hit, floorLayer))
+        {
+            direction=Vector3.zero;
+            return;
+        }
+
+        direction = hit.point - transform.position;
+        direction.y = 0;
+        direction.Normalize();
     }
 }

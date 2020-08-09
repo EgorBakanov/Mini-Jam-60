@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -23,9 +24,10 @@ public class AiBrain : MonoBehaviour
     public float viewAngel;
     public float viewDistance;
     public NavMeshAgent navMeshAgent;
-    public AiState startState = AiState.Wait;
     public float waitTime;
+    public float chaseWaitTime;
     public float rotateOnWaitTime;
+    public Ease rotationEase;
     public PathStyle pathStyle = PathStyle.PingPong;
     public Transform[] waypoints;
     public Transform alarmWaypoint;
@@ -34,6 +36,7 @@ public class AiBrain : MonoBehaviour
     private AiState _state;
     private int _waypointNext = 1;
     private Timer _timer;
+    private bool _canSee;
 
     private void Start()
     {
@@ -43,14 +46,15 @@ public class AiBrain : MonoBehaviour
             alarmWaypoint = transform;
 
         _currentWaypoint = 0;
-        _state = startState;
+        _state = AiState.FollowPath;
+        navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
         _timer = 0;
+        _canSee = false;
     }
 
     private void Update()
     {
         CheckPlayer();
-        Debug.Log(_state);
         switch (_state)
         {
             case AiState.Wait:
@@ -76,7 +80,6 @@ public class AiBrain : MonoBehaviour
 
     private void UpdateOnChaseWait()
     {
-        if (CheckForAlarm()) return;
         if (!_timer.Tick(Time.deltaTime)) return;
 
         navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
@@ -100,35 +103,37 @@ public class AiBrain : MonoBehaviour
             return;
         }
 
-        if (navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete) return;
+        if (!PathComplete()) return;
 
         _state = AiState.AlarmWait;
-        navMeshAgent.transform.DORotate(alarmWaypoint.forward, rotateOnWaitTime);
+        transform.DOLookAt(alarmWaypoint.position + alarmWaypoint.forward, rotateOnWaitTime,
+            AxisConstraint.Y).SetEase(rotationEase);
     }
 
     private void UpdateOnChase()
     {
-        if (navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete) return;
+        if (!PathComplete()) return;
 
         _state = AiState.ChaseWait;
-        _timer = waitTime;
+        _timer = chaseWaitTime;
     }
 
     private void UpdateOnFollowPath()
     {
         if (CheckForAlarm()) return;
-        if (navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete) return;
-        
+        if (!PathComplete()) return;
+
         _state = AiState.Wait;
         _timer = waitTime;
-        navMeshAgent.transform.DORotate(waypoints[_currentWaypoint].forward, rotateOnWaitTime);
+        transform.DOLookAt(waypoints[_currentWaypoint].position + waypoints[_currentWaypoint].forward, rotateOnWaitTime,
+            AxisConstraint.Y).SetEase(rotationEase);
     }
 
     private void UpdateOnWait()
     {
         if (CheckForAlarm()) return;
         if (!_timer.Tick(Time.deltaTime)) return;
-        
+
         _state = AiState.FollowPath;
         NextWaypoint();
         navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
@@ -146,21 +151,38 @@ public class AiBrain : MonoBehaviour
 
     private void CheckPlayer()
     {
+        if (!_canSee)
+            return;
+        
         var player = GameManager.Instance.player;
         var direction = (player.position - transform.position).normalized;
         if (Mathf.Abs(Vector3.Angle(direction, transform.forward)) > viewAngel)
             return;
 
-        if (!Physics.Raycast(transform.position, direction, out var hitInfo, viewDistance))
-            return;
-
-        if ((hitInfo.transform.gameObject.layer & GameManager.Instance.playerLayerMask) !=
-            GameManager.Instance.playerLayerMask)
-            return;
-
         _state = AiState.Chase;
         navMeshAgent.SetDestination(player.position);
         GameManager.Instance.pausableSystemManager.alarmSystem.Alarm();
+    }
+
+    private void FixedUpdate()
+    {
+        var player = GameManager.Instance.player;
+        var direction = (player.position - transform.position).normalized;
+        if (Physics.Raycast(transform.position, direction, out var hitInfo, viewDistance))
+        {
+            _canSee = hitInfo.transform == player;
+        }
+    }
+
+    private bool PathComplete()
+    {
+        return Vector3.Distance(transform.position, navMeshAgent.destination) <= navMeshAgent.stoppingDistance;
+
+        // if (navMeshAgent.pathPending)
+        //     return false;
+        // if (!(navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance))
+        //     return false;
+        // return !navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude == 0f;
     }
 
     private void NextWaypoint()
