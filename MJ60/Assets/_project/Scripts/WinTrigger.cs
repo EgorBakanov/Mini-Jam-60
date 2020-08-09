@@ -4,7 +4,7 @@ public class WinTrigger : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Player>() != null)
+        if (other.transform == GameManager.Instance.player)
         {
             Win();
         }

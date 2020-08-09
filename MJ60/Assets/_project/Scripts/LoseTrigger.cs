@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace _project.Scripts
 {
@@ -7,7 +6,7 @@ namespace _project.Scripts
     {
         private void OnTriggerEnter(Collider other)
         {
-            if (other.GetComponent<Player>() != null)
+            if (other.transform == GameManager.Instance.player)
             {
                 Lose();
             }
