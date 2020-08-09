@@ -25,8 +25,8 @@ jobs:
         unityVersion:
           - 2019.4.5f1
         targetPlatform:
-          - StandaloneWindows
           - StandaloneWindows64
+          - StandaloneLinux64
           - WebGL
     steps:
       - name: Checkout
