@@ -179,7 +179,6 @@ GameObject:
   m_Component:
   - component: {fileID: 98310743}
   - component: {fileID: 98310742}
-  - component: {fileID: 98310741}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -187,21 +186,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &98310741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 98310740}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef27f40c5f4842e0bdd127471201f156, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  testSystem: {fileID: 1232063496}
-  doorSystem: {fileID: 1232063498}
-  alarmSystem: {fileID: 1232063499}
 --- !u!114 &98310742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,7 +198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5792aa8dde2840ea9b8c243d2c306f3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pausableSystemManager: {fileID: 98310741}
+  pausableSystemManager: {fileID: 1232063501}
   uiManager: {fileID: 1418633379}
   player: {fileID: 0}
 --- !u!4 &98310743
@@ -1445,7 +1429,7 @@ RectTransform:
   m_GameObject: {fileID: 978089337}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_Children:
   - {fileID: 289386463}
   - {fileID: 945107908}
@@ -1714,9 +1698,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1232063497}
+  - component: {fileID: 1232063501}
   - component: {fileID: 1232063496}
   - component: {fileID: 1232063498}
   - component: {fileID: 1232063499}
+  - component: {fileID: 1232063500}
   m_Layer: 0
   m_Name: PausableSystems
   m_TagString: Untagged
@@ -1765,7 +1751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5b910bb927b452e8b1bba258b5f70ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Doors
+  name: Locks
   pauseTime: 5
   cooldownTime: 10
 --- !u!114 &1232063499
@@ -1786,6 +1772,37 @@ MonoBehaviour:
   timeToAlarm: 1
   timeToFullRestore: 10
   alarmTime: 10
+--- !u!114 &1232063500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1232063495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0593a1aef7e4c340a29f1da5021fa56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  name: AI Navigation
+  pauseTime: 4
+  cooldownTime: 12
+--- !u!114 &1232063501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1232063495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef27f40c5f4842e0bdd127471201f156, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testSystem: {fileID: 1232063496}
+  doorSystem: {fileID: 1232063498}
+  alarmSystem: {fileID: 1232063499}
+  navigationSystem: {fileID: 1232063500}
 --- !u!1 &1279631218
 GameObject:
   m_ObjectHideFlags: 0
@@ -2552,7 +2569,7 @@ PrefabInstance:
         type: 3}
       propertyPath: system
       value: 
-      objectReference: {fileID: 1232063498}
+      objectReference: {fileID: 1232063500}
     - target: {fileID: 8381797147759367584, guid: dd50ef916d5273047ac273a45971be67,
         type: 3}
       propertyPath: m_LocalPosition.x

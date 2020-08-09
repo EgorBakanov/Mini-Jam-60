@@ -63,6 +63,7 @@ MonoBehaviour:
   normalState: {r: 0.45269674, g: 0.7882353, b: 0, a: 1}
   chaseState: {r: 0.9245283, g: 0, b: 0, a: 1}
   alarmState: {r: 0.9433962, g: 0.3728961, b: 0, a: 1}
+  cantNavigateShake: 0.25
 --- !u!195 &1869900626841552606
 NavMeshAgent:
   m_ObjectHideFlags: 0

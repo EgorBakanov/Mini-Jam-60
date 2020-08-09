@@ -16,6 +16,7 @@ public abstract class PausableSystem : MonoBehaviour
 
     private Timer _pauseTimer;
     protected SystemState State { get; private set; }
+    public bool IsPaused => State == SystemState.Pause;
 
     public event Action<float> OnValueChanged;
     public event Action OnPause;

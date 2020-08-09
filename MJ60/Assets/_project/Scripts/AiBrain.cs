@@ -2,6 +2,7 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 public class AiBrain : MonoBehaviour
 {
@@ -36,12 +37,14 @@ public class AiBrain : MonoBehaviour
     public Color normalState;
     public Color chaseState;
     public Color alarmState;
+    public float cantNavigateShake;
 
     private int _currentWaypoint;
     private AiState _state;
     private int _waypointNext = 1;
     private Timer _timer;
     private bool _canSee;
+    private float _speed;
 
     private void Start()
     {
@@ -56,6 +59,7 @@ public class AiBrain : MonoBehaviour
         navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
         _timer = 0;
         _canSee = false;
+        _speed = navMeshAgent.speed;
     }
 
     private void Update()
@@ -112,7 +116,7 @@ public class AiBrain : MonoBehaviour
             return;
         }
 
-        if (!PathComplete()) return;
+        if (!PathCompleted()) return;
 
         _state = AiState.AlarmWait;
         transform.DOLookAt(alarmWaypoint.position + alarmWaypoint.forward, rotateOnWaitTime,
@@ -121,7 +125,7 @@ public class AiBrain : MonoBehaviour
 
     private void UpdateOnChase()
     {
-        if (!PathComplete()) return;
+        if (!PathCompleted()) return;
 
         _state = AiState.ChaseWait;
         _timer = chaseWaitTime;
@@ -130,7 +134,7 @@ public class AiBrain : MonoBehaviour
     private void UpdateOnFollowPath()
     {
         if (CheckForAlarm()) return;
-        if (!PathComplete()) return;
+        if (!PathCompleted()) return;
 
         _state = AiState.Wait;
         _timer = waitTime;
@@ -163,7 +167,7 @@ public class AiBrain : MonoBehaviour
     {
         if (!_canSee)
             return;
-        
+
         var player = GameManager.Instance.player;
         var direction = (player.position - transform.position).normalized;
         if (Mathf.Abs(Vector3.Angle(direction, transform.forward)) > viewAngel)
@@ -177,15 +181,33 @@ public class AiBrain : MonoBehaviour
 
     private void FixedUpdate()
     {
-        var player = GameManager.Instance.player;
-        var direction = (player.position - transform.position).normalized;
-        if (Physics.Raycast(transform.position, direction, out var hitInfo, viewDistance))
+        _canSee = CheckCanSeePlayer();
+
+        if (GameManager.Instance.pausableSystemManager.navigationSystem.IsPaused && !PathCompleted())
         {
-            _canSee = hitInfo.transform == player;
+            var direction = transform.forward + transform.right * Random.Range(-cantNavigateShake, cantNavigateShake);
+            direction.Normalize();
+
+            var newDir = Vector3.RotateTowards(transform.forward, direction,
+                navMeshAgent.angularSpeed * Mathf.Deg2Rad * Time.deltaTime, 0f);
+            transform.rotation = Quaternion.LookRotation(newDir);
+            navMeshAgent.Move(Time.deltaTime * _speed * direction);
         }
+
+        navMeshAgent.speed = GameManager.Instance.pausableSystemManager.navigationSystem.IsPaused ? 0f : _speed;
     }
 
-    private bool PathComplete()
+    private bool CheckCanSeePlayer()
+    {
+        var player = GameManager.Instance.player;
+        var direction = (player.position - transform.position).normalized;
+        if (!Physics.Raycast(transform.position, direction, out var hitInfo, viewDistance))
+            return false;
+
+        return hitInfo.transform == player;
+    }
+
+    private bool PathCompleted()
     {
         return Vector3.Distance(transform.position, navMeshAgent.destination) <= navMeshAgent.stoppingDistance;
 
