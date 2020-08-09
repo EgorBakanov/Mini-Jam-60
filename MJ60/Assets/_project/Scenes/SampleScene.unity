@@ -683,7 +683,7 @@ PrefabInstance:
     - target: {fileID: 1869900626841552604, guid: 3032f01fb0148424ab0c37b9df669fed,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 16.51
+      value: 16.69
       objectReference: {fileID: 0}
     - target: {fileID: 1869900626841552604, guid: 3032f01fb0148424ab0c37b9df669fed,
         type: 3}
@@ -1703,6 +1703,7 @@ GameObject:
   - component: {fileID: 1232063498}
   - component: {fileID: 1232063499}
   - component: {fileID: 1232063500}
+  - component: {fileID: 1232063502}
   m_Layer: 0
   m_Name: PausableSystems
   m_TagString: Untagged
@@ -1803,6 +1804,22 @@ MonoBehaviour:
   doorSystem: {fileID: 1232063498}
   alarmSystem: {fileID: 1232063499}
   navigationSystem: {fileID: 1232063500}
+  alarmCameraSystem: {fileID: 1232063502}
+--- !u!114 &1232063502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1232063495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3edd1554d6103694d8fbab6924ab3c4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  name: Cameras
+  pauseTime: 5
+  cooldownTime: 8
 --- !u!1 &1279631218
 GameObject:
   m_ObjectHideFlags: 0
@@ -2569,7 +2586,7 @@ PrefabInstance:
         type: 3}
       propertyPath: system
       value: 
-      objectReference: {fileID: 1232063500}
+      objectReference: {fileID: 1232063502}
     - target: {fileID: 8381797147759367584, guid: dd50ef916d5273047ac273a45971be67,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2830,6 +2847,75 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8434114d7b3ebec429aba71329505140, type: 3}
+--- !u!1001 &4002991659903880075
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -10.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7743926
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.6327054
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 101.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501027, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4002991659785501038, guid: 976368763da9aa94089140f5585801ce,
+        type: 3}
+      propertyPath: m_Name
+      value: AlarmCamera
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 976368763da9aa94089140f5585801ce, type: 3}
 --- !u!1001 &6720567837406879181
 PrefabInstance:
   m_ObjectHideFlags: 0

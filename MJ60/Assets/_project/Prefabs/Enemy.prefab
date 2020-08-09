@@ -60,7 +60,7 @@ MonoBehaviour:
   alarmWaypoint: {fileID: 0}
   viewLight: {fileID: 1869900628691957929}
   viewLightChangeTime: 0.1
-  normalState: {r: 0.45269674, g: 0.7882353, b: 0, a: 1}
+  normalState: {r: 0.7882353, g: 0.7529412, b: 0, a: 1}
   chaseState: {r: 0.9245283, g: 0, b: 0, a: 1}
   alarmState: {r: 0.9433962, g: 0.3728961, b: 0, a: 1}
   cantNavigateShake: 0.25
@@ -206,7 +206,7 @@ GameObject:
   - component: {fileID: 1869900628691957928}
   - component: {fileID: 1869900628691957929}
   m_Layer: 0
-  m_Name: Area Light
+  m_Name: View Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -237,7 +237,7 @@ Light:
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
-  m_Color: {r: 0.4509804, g: 0.7882353, b: 0, a: 1}
+  m_Color: {r: 0.7882353, g: 0.7529412, b: 0, a: 1}
   m_Intensity: 20
   m_Range: 6
   m_SpotAngle: 150

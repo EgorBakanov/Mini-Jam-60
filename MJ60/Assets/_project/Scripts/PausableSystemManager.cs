@@ -7,6 +7,7 @@ public class PausableSystemManager : MonoBehaviour
     public DoorSystem doorSystem;
     public AlarmSystem alarmSystem;
     public NavigationSystem navigationSystem;
+    public AlarmCameraSystem alarmCameraSystem;
 
     public HashSet<PausableSystem> availableSystems = new HashSet<PausableSystem>();
 }

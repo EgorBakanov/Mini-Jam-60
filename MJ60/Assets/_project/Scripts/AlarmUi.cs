@@ -18,6 +18,7 @@ public class AlarmUi : MonoBehaviour
     private void Start()
     {
         _alarmSystem = GameManager.Instance.pausableSystemManager.alarmSystem;
+        wrapper.alpha = pauseAlpha;
         _alarmSystem.OnAlarmValueChanged += OnAlarmValueChanged;
         _alarmSystem.OnPause += OnPause;
         _alarmSystem.OnUnpause += OnUnpause;
@@ -37,8 +38,12 @@ public class AlarmUi : MonoBehaviour
     {
         var old = slider.value;
         slider.value = value;
+        wrapper.alpha = 1f;
         if (value == 0f)
+        {
             wrapper.transform.DOScale(noneScale, rescaleTime).SetEase(rescaleEase);
+            wrapper.alpha = pauseAlpha;
+        }
         else if (value == 1f)
             wrapper.transform.DOScale(alarmScale, rescaleTime).SetEase(rescaleEase);
         else if(old == 0f || old == 1f)

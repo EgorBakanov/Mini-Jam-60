@@ -43,7 +43,7 @@ public class AiBrain : MonoBehaviour
     private AiState _state;
     private int _waypointNext = 1;
     private Timer _timer;
-    private bool _canSee;
+    private bool _detectPlayer;
     private float _speed;
 
     private void Start()
@@ -58,7 +58,7 @@ public class AiBrain : MonoBehaviour
         viewLight.DOColor(normalState, viewLightChangeTime);
         navMeshAgent.SetDestination(waypoints[_currentWaypoint].position);
         _timer = 0;
-        _canSee = false;
+        _detectPlayer = false;
         _speed = navMeshAgent.speed;
     }
 
@@ -165,7 +165,7 @@ public class AiBrain : MonoBehaviour
 
     private void CheckPlayer()
     {
-        if (!_canSee)
+        if (!_detectPlayer)
             return;
 
         var player = GameManager.Instance.player;
@@ -181,7 +181,7 @@ public class AiBrain : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _canSee = CheckCanSeePlayer();
+        CheckCanSeePlayer();
 
         if (GameManager.Instance.pausableSystemManager.navigationSystem.IsPaused && !PathCompleted())
         {
@@ -197,14 +197,18 @@ public class AiBrain : MonoBehaviour
         navMeshAgent.speed = GameManager.Instance.pausableSystemManager.navigationSystem.IsPaused ? 0f : _speed;
     }
 
-    private bool CheckCanSeePlayer()
+    private void CheckCanSeePlayer()
     {
         var player = GameManager.Instance.player;
-        var direction = (player.position - transform.position).normalized;
-        if (!Physics.Raycast(transform.position, direction, out var hitInfo, viewDistance))
-            return false;
-
-        return hitInfo.transform == player;
+        var direction = player.position - transform.position;
+        if (direction.sqrMagnitude > viewDistance * viewDistance)
+        {
+            _detectPlayer = false;
+            return;
+        }
+        
+        if (Physics.Raycast(transform.position, direction, out var hitInfo))
+            _detectPlayer = hitInfo.transform == player;
     }
 
     private bool PathCompleted()

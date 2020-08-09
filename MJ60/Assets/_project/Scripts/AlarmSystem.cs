@@ -38,6 +38,8 @@ public class AlarmSystem : PausableSystem
         
         _state = AlarmState.Alarm;
         _alarmTimer = alarmTime;
+        _value = 1f;
+        OnAlarmValueChanged?.Invoke(_value);
     }
 
     public event Action<float> OnAlarmValueChanged;
