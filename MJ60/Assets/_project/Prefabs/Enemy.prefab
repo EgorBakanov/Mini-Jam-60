@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   viewAngel: 80
-  viewDistance: 2
+  viewDistance: 4.25
   navMeshAgent: {fileID: 1869900626841552606}
   waitTime: 4
   chaseWaitTime: 0.5
